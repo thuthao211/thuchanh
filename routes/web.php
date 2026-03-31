@@ -28,3 +28,5 @@ Route::get('/bh',function(){
 Route::get('/chitietsach/{id}', 'App\Http\Controllers\SachController@chitietsach');
 Route::get('/sach/theloai/{id}', 'App\Http\Controllers\ViduController@theloai');
 require __DIR__.'/auth.php';
+Route::get('/testemail','App\Http\Controllers\ViduController@testemail');
+
