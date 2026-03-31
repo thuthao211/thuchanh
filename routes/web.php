@@ -1,12 +1,22 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// 1. Trang chủ và Trang Index - Dùng ViduLayoutController để đồng bộ với AJAX
+Route::get('/', 'App\Http\Controllers\ViduLayoutController@sach');
+Route::get('/index', 'App\Http\Controllers\ViduLayoutController@sach');
 
+// 2. Thể loại (Load trang bình thường - dùng khi redirect từ trang chi tiết)
+Route::get('/sach/theloai/{id}', 'App\Http\Controllers\ViduLayoutController@theloai');
+
+// 3. Route AJAX dành riêng cho menu (Lấy dữ liệu ngầm không load lại trang)
+Route::get('/ajax/sach/theloai/{id}', 'App\Http\Controllers\ViduLayoutController@sachTheoTheLoaiAjax');
+
+// 4. Chi tiết sách (Giữ nguyên Controller riêng của nó)
+Route::get('/chitietsach/{id}', 'App\Http\Controllers\SachController@chitietsach');
+
+// --- CÁC ROUTE HỆ THỐNG (AUTH) ---
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -16,15 +26,5 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-Route::get('/thuthao', function () {
-    return view('ten');
-});
 
-Route::get('/index','App\Http\Controllers\ViduController@sach');
-Route::get('/bh',function(){
-    return view('bh');
-});
-
-Route::get('/chitietsach/{id}', 'App\Http\Controllers\SachController@chitietsach');
-Route::get('/sach/theloai/{id}', 'App\Http\Controllers\ViduController@theloai');
 require __DIR__.'/auth.php';

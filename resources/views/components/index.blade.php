@@ -1,38 +1,17 @@
-@extends("components.layout_sach")
+<x-layout_sach>
+    <x-slot name='title'>Trang chủ - Nhà Sách</x-slot>
 
-@section("title","Sách")
-
-@section("content")
-<style>
-.navbar {
-  background-color: #ff5850;
-  font-weight:bold;
-}
-.nav-item a {
-  color: #fff!important;
-}
-.navbar-nav {
-  margin:0 auto;
-}
-.list-book{
-  display:grid;
-  grid-template-columns:repeat(4,24%);
-}
-.book {
-  margin:10px;
-  text-align:center;
-}
-</style>
-
-<div class='list-book'>
-  @foreach($data as $row)
-    <div class='book'>
-      <a href="{{ url('chitietsach/'.$row->id) }}">
-        <img src="{{asset('hinh/image/'.$row->file_anh_bia)}}" width='200px' height='200px'><br>
-      </a>
-      <b>{{$row->tieu_de}}</b><br/>
-      <i>{{number_format($row->gia_ban,0,",",".")}}đ</i>
+    <div class='list-book' id="khu-vuc-sach">
+        @foreach($data as $row)
+            <div class='book'>
+                <a href="{{ url('chitietsach/'.$row->id) }}">
+                    <img src="{{ asset('book_image/'.$row->file_anh_bia) }}">
+                </a>
+                <div>
+                    <b>{{ $row->tieu_de }}</b>
+                    <i>{{ number_format($row->gia_ban, 0, ",", ".") }}đ</i>
+                </div>
+            </div>
+        @endforeach
     </div>
-  @endforeach
-</div>
-@endsection
+</x-layout_sach>
