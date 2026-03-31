@@ -30,17 +30,19 @@
                     <a class="nav-link" href="{{url('sach/theloai/3')}}">Tác phẩm kinh điển</a>
                 </li>
             </ul>
-            <div style='color:white;position:relative' class='mr-2'>
-              <div style='width:20px; height:20px;background-color:#23b85c; font-size:12px; border:none;
-                    border-radius:50%; position:absolute;right:2px;top:-2px' id='cart-number-product'>
-              @if (session('cart'))
-                  {{ count(session('cart')) }}
-              @else
-                0
-              @endif
-              </div>
-              <a href="{{route('order')}}" style='cursor:pointer;color:white;'>
-                <i class="fa fa-cart-arrow-down fa-2x mr-2 mt-2" aria-hidden="true"></i>
+            <div class='mr-2' style="display: inline-block;">
+              <a href="{{route('order')}}" style='cursor:pointer; color:white; position:relative; display:inline-block;'>
+                <i class="fa fa-cart-arrow-down fa-2x mt-2" aria-hidden="true"></i>
+                <div style='width:20px; height:20px; background-color:#23b85c; font-size:12px; 
+                            border-radius:50%; position:absolute; right:-5px; top:-2px;
+                            display:flex; align-items:center; justify-content:center; 
+                            font-weight:bold; color:white;' id='cart-number-product'>
+                  @if (session('cart'))
+                      {{ count(session('cart')) }}
+                  @else
+                      0
+                  @endif
+                </div>
               </a>
             </div>
           </nav>
