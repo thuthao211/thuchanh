@@ -28,3 +28,10 @@ Route::get('/bh',function(){
 Route::get('/chitietsach/{id}', 'App\Http\Controllers\SachController@chitietsach');
 Route::get('/sach/theloai/{id}', 'App\Http\Controllers\ViduController@theloai');
 require __DIR__.'/auth.php';
+
+Route::get('/book/list','App\Http\Controllers\SachController@booklist')->middleware('auth')->name("booklist");
+Route::get('/book/create','App\Http\Controllers\SachController@bookcreate')->middleware('auth')->name("bookcreate");
+Route::get('/book/edit/{id}','App\Http\Controllers\SachController@bookedit')->middleware('auth')->name("bookedit");
+Route::post('/book/save/{action}','App\Http\Controllers\SachController@booksave')->middleware('auth')->name("booksave");
+Route::post('/book/delete','App\Http\Controllers\SachController@bookdelete')->middleware('auth')->name("bookdelete");
+
