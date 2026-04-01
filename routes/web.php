@@ -20,7 +20,7 @@ Route::get('/thuthao', function () {
     return view('ten');
 });
 
-Route::get('/index','App\Http\Controllers\ViduController@sach');
+Route::get('/index', 'App\Http\Controllers\ViduController@sach')->name('index');
 Route::get('/bh',function(){
     return view('bh');
 });
