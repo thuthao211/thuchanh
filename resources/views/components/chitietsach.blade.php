@@ -18,7 +18,7 @@
 
         <div class="grid-container">
             <div>
-                <img src="{{ asset('hinh/image/'.$row->file_anh_bia) }}" width="200px" height="200px"><br>
+               <img src="{{ asset('book_image/'.$row->file_anh_bia) }}" width="200px" height="200px">
             </div>
 
             <div>
