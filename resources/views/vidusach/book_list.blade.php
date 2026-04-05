@@ -122,7 +122,7 @@
                     <td>{{ $row->hinh_thuc_bia }}</td> <td>{{ $row->gia_ban }}</td>
 
                     <td>
-                        <img src="{{ asset('storage/hinh/image/'.$row->file_anh_bia) }}" width="50px">
+                        <img src="{{ asset('hinh/image/'.$row->file_anh_bia) }}" width="50px">
                     </td>
 
                     <td class="action">

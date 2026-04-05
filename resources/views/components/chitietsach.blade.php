@@ -3,6 +3,7 @@
 @section("title", "Chi tiết: " . $sach->tieu_de)
 
 @section("content")
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
 .grid-container{
     display: grid;
@@ -13,7 +14,7 @@
 
 <div class="row mt-3">
     <div class="col-md-5">
-        <img src="{{ asset('book_image/'.$sach->file_anh_bia) }}" class="img-fluid border shadow-sm">
+        <img src="{{ asset('hinh/image/'.$sach->file_anh_bia) }}" class="img-fluid border shadow-sm">
     </div>
 
     <div class="col-md-7">
@@ -54,24 +55,37 @@
 
 <script>
 $(document).ready(function(){
-    $("#add-to-cart").click(function(){
+
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $("#add-to-cart").click(function(e){
+        e.preventDefault();
+
         let id = "{{$sach->id}}";
         let num = $("#product-number").val();
 
         $.ajax({
-            type:"POST",
-            dataType:"json",
-            url: "{{route('cartadd')}}",
-            data:{
-                "_token": "{{ csrf_token() }}",
-                "id": id,
-                "num": num
+            type: "POST",
+            url: "{{ route('cartadd') }}",
+            data: { id: id, num: num },
+            dataType: "json",
+            success: function(response){
+                console.log("Cart updated:", response);
+                $("#cart-number-product").html(response.total_items);
+                alert("Đã thêm vào giỏ!");
             },
-            success:function(data){
-                $("#cart-number-product").html(data);
+            error: function(xhr){
+                console.log("Lỗi thêm giỏ hàng:", xhr.responseText);
+                alert("Lỗi thêm giỏ hàng!");
             }
         });
     });
+
 });
 </script>
+
 @endsection

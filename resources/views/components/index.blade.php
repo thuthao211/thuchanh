@@ -50,7 +50,7 @@
     @foreach($data as $row)
         <div class='book'>
             <a href="{{ url('chitietsach/'.$row->id) }}">
-                <img src="{{ asset('book_image/'.$row->file_anh_bia) }}" width="200">
+                <img src="{{ asset('hinh/image/'.$row->file_anh_bia) }}" width="200">
             </a>
             <b>{{ $row->tieu_de }}</b><br/>
             <i>{{ number_format($row->gia_ban,0,",",".") }}đ</i>

@@ -7,38 +7,39 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\TestSendEmail;
+use App\Models\User;
 
 class SachController extends Controller
 {
+    // --- Hiển thị chi tiết sách ---
     public function chitietsach($id)
     {
         $sach = DB::table('sach')->where('id', $id)->first();
-
-        if (!$sach) {
-            return redirect('/')->with('error', 'Không tìm thấy sách!');
+        if(!$sach){
+            abort(404, "Sách không tồn tại");
         }
-
         return view('components.chitietsach', compact('sach'));
     }
 
     public function booklist(){
         $data = DB::table("sach")->get();
-        return view("vidusach.book_list", compact("data"));
+        return view("vidusach.book_list",compact("data"));
     }
 
     public function bookcreate(){
         $the_loai = DB::table("dm_the_loai")->get();
         $action = "add";
-        return view("vidusach.book_form", compact("the_loai","action"));
+        return view("vidusach.book_form",compact("the_loai","action"));
     }
 
     public function bookedit($id){
         $action = "edit";
         $the_loai = DB::table("dm_the_loai")->get();
         $sach = DB::table("sach")->where("id",$id)->first();
-        return view("vidusach.book_form", compact("the_loai","action","sach"));
+        return view("vidusach.book_form",compact("the_loai","action","sach"));
     }
 
+    
     public function booksave($action, Request $request)
     {
         $request->validate([
@@ -51,9 +52,9 @@ class SachController extends Controller
             'the_loai' => ['required', 'max:3'],
             'file_anh_bia' => ['nullable','image']
         ]);
-
+        
         $data = $request->except("_token");
-
+        
         if($action=="edit") {
             $data = $request->except("_token", "id");
         }
@@ -64,135 +65,97 @@ class SachController extends Controller
             $request->file('file_anh_bia')->storeAs('public/book_image', $fileName);
             $data['file_anh_bia'] = $fileName;
         }
-
+        
+        $message = "";
+        
         if($action=="add")
         {
             DB::table("sach")->insert($data);
             $message = "Thêm thành công";
         }
-        else
+        else if($action=="edit")
         {
             $id = $request->id;
             DB::table("sach")->where("id",$id)->update($data);
             $message = "Cập nhật thành công";
         }
-
+        
         return redirect()->route('booklist')->with('status', $message);
     }
 
+    
     public function bookdelete(Request $request)
     {
         $id = $request->id;
         DB::table("sach")->where("id", $id)->delete();
         return redirect()->route('booklist')->with('status', "Xóa thành công");
     }
-
-    public function cartadd(Request $request)
-    {
-        $request->validate([
-            "id"=>["required","numeric"],
-            "num"=>["required","numeric"]
-        ]);
-
-        $id = $request->id;
-        $num = $request->num;
-        $cart = [];
-
-        if(session()->has('cart'))
-        {
-            $cart = session()->get("cart");
-            if(isset($cart[$id]))
-                $cart[$id] += $num;
-            else
-                $cart[$id] = $num;
-        }
-        else
-        {
-            $cart[$id] = $num;
-        }
-
-        session()->put("cart",$cart);
-        return count($cart);
-    }
-
+    // --- Hiển thị giỏ hàng ---
     public function order()
     {
-        $cart=[];
-        $data =[];
-        $quantity = [];
+        $cart = session('cart', []);
+        $quantity = $cart;
 
-        if(session()->has('cart') && count(session('cart')) > 0)
-        {
-            $cart = session("cart");
-
-            $data = DB::table("sach")->whereIn("id", array_keys($cart))->get();
-            $quantity = $cart;
+        if(!empty($cart)){
+            $data = DB::table('sach')->whereIn('id', array_keys($cart))->get();
+        } else {
+            $data = collect();
         }
 
-        return view("components.order", compact("quantity","data"));
+        return view('components.order', compact('data', 'quantity'));
     }
 
+    public function cartadd(Request $request)
+{
+    $id = $request->id;
+    $num = max(1, (int)$request->num);
+
+    $cart = session('cart', []);
+
+    if(isset($cart[$id])){
+        $cart[$id] += $num;
+    } else {
+        $cart[$id] = $num;
+    }
+
+    session(['cart' => $cart]);
+
+    $totalItems = array_sum($cart); // tổng số lượng sản phẩm
+    return response()->json(['total_items' => $totalItems]);
+}
+
+    // --- Xóa sản phẩm khỏi giỏ hàng ---
     public function cartdelete(Request $request)
     {
-        $request->validate([
-            "id"=>["required","numeric"]
-        ]);
-
         $id = $request->id;
+        $cart = session('cart', []);
 
-        if(session()->has('cart'))
-        {
-            $cart = session()->get("cart");
+        if(isset($cart[$id])){
             unset($cart[$id]);
-            session()->put("cart",$cart);
+            session(['cart' => $cart]);
         }
 
-        return redirect()->route('order');
+        return redirect()->back();
     }
 
-    public function ordercreate(Request $request)
-    {
-        $request->validate([
-            "hinh_thuc_thanh_toan" => ["required", "numeric"]
-        ]);
-
-        if (session()->has('cart') && count(session('cart')) > 0) {
-            $cart = session("cart");
-
-            $data = DB::table("sach")->whereIn("id", array_keys($cart))->get();
-            $quantity = $cart;
-
-            $order = [
-                "ngay_dat_hang" => now(),
-                "tinh_trang" => 1,
-                "hinh_thuc_thanh_toan" => $request->hinh_thuc_thanh_toan,
-                "user_id" => Auth::user()->id
-            ];
-
-            DB::transaction(function () use ($order, $data, $quantity) {
-                $id_don_hang = DB::table("don_hang")->insertGetId($order);
-
-                $detail = [];
-                foreach ($data as $row) {
-                    $detail[] = [
-                        "ma_don_hang" => $id_don_hang,
-                        "sach_id" => $row->id,
-                        "so_luong" => $quantity[$row->id],
-                        "don_gia" => $row->gia_ban
-                    ];
-                }
-
-                DB::table("chi_tiet_don_hang")->insert($detail);
-
-                $user = Auth::user();
-                Notification::send($user, new TestSendEmail($data, $quantity));
-
-                session()->forget('cart');
-            });
-
-            return redirect('/index')->with('success', 'Đặt hàng thành công!');
-        }
-
-        return redirect()->back()->with('error', 'Giỏ hàng của bạn đang trống.');
+   public function ordercreate(Request $request)
+{
+    $cart = session('cart', []);
+    if(empty($cart)){
+        return redirect()->back()->with('error', 'Giỏ hàng trống!');
     }
+
+    $data = DB::table('sach')->whereIn('id', array_keys($cart))->get();
+
+    foreach($data as $item){
+        $item->so_luong = $cart[$item->id];
+    }
+
+    $user = \App\Models\User::find(2);
+    $user->notify(new \App\Notifications\TestSendEmail($data));
+
+    session()->forget('cart');
+
+    return redirect('/')->with('success', 'Đặt hàng thành công!');
+}
 }
