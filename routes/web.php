@@ -18,7 +18,7 @@ Route::get('/thuthao', function () {
     return view('ten');
 });
 
-Route::get('/index','App\Http\Controllers\ViduController@sach');
+Route::get('/index', 'App\Http\Controllers\ViduController@sach')->name('index');
 Route::get('/bh',function(){
     return view('bh');
 });
@@ -44,3 +44,7 @@ Route::get('/book/edit/{id}','App\Http\Controllers\SachController@bookedit')->mi
 Route::post('/book/save/{action}','App\Http\Controllers\SachController@booksave')->middleware('auth')->name("booksave");
 Route::post('/book/delete','App\Http\Controllers\SachController@bookdelete')->middleware('auth')->name("bookdelete");
 
+Route::get('/order','App\Http\Controllers\SachController@order')->name('order');
+Route::post('/cart/add','App\Http\Controllers\SachController@cartadd')->name('cartadd');
+Route::post('/cart/delete','App\Http\Controllers\SachController@cartdelete')->name('cartdelete');
+Route::post('/order/create','App\Http\Controllers\SachController@ordercreate') ->middleware('auth')->name('ordercreate');

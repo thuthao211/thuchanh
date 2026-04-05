@@ -18,7 +18,7 @@
 
         <div class="grid-container">
             <div>
-                <img src="{{ asset('hinh/image/'.$row->file_anh_bia) }}" width="200px" height="200px"><br>
+               <img src="{{ asset('book_image/'.$row->file_anh_bia) }}" width="200px" height="200px">
             </div>
 
             <div>
@@ -28,7 +28,12 @@
                 Hình thức bìa: <b>{{ $row->hinh_thuc_bia }}</b><br/>
             </div>
         </div>
+        <div class='mt-1'>
+            Số lượng mua:
+            <input type='number' id='product-number' size='5' min="1" value="1">
+            <button class='btn btn-success btn-sm mb-1' id='add-to-cart'><a href="{{url('/order')}}">Thêm vào giỏ hàng</button></a>
 
+        </div>
         <div>
             <b>Mô tả:</b><br>
             {{ $row->mo_ta }}
@@ -36,4 +41,27 @@
     </div>
 @endforeach
 </div>
+<script>
+    $(document).ready(function(){
+        $("#add-to-cart").click(function(){
+            id = "{{$row->id}}";
+            num = $("#product-number").val()
+            $.ajax({
+                type:"POST",
+                dataType:"json",
+                url: "{{route('cartadd')}}",
+                data:{"_token": "{{ csrf_token() }}","id":id,"num":num},
+                beforeSend:function(){
+            },
+            success:function(data){
+                $("#cart-number-product").html(data);
+            },
+            error: function (xhr,status,error){
+            },
+            complete: function(xhr,status){
+            }
+        });
+    });
+});
+</script>
 @endsection
