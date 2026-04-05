@@ -48,3 +48,5 @@ Route::get('/order','App\Http\Controllers\SachController@order')->name('order');
 Route::post('/cart/add','App\Http\Controllers\SachController@cartadd')->name('cartadd');
 Route::post('/cart/delete','App\Http\Controllers\SachController@cartdelete')->name('cartdelete');
 Route::post('/order/create','App\Http\Controllers\SachController@ordercreate') ->middleware('auth')->name('ordercreate');
+Route::get('/testemail','App\Http\Controllers\ViduController@testemail');
+
